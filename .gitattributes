@@ -1,0 +1,4 @@
+# Ensure text diffs for documentation and assets
+*.md text diff
+*.html text diff
+*.toml text diff
