@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from .config import Settings, load_settings
 from .db import get_engine, get_or_extract_schema, run_sql_query
+from .llm import build_sql_for_question, get_openai_client, render_answer
 from .llm import build_sql_for_question, render_answer
 
 logger = logging.getLogger(__name__)
@@ -71,6 +72,10 @@ async def ask(
         logger.exception("Error initializing database context")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
+    client = get_openai_client(settings.llm_api_key)
+    sql = build_sql_for_question(
+        payload.texto, schema_map, settings.system_prompt, client, settings.llm_model
+    )
     sql = build_sql_for_question(payload.texto, schema_map, settings.system_prompt)
 
     try:
@@ -79,6 +84,7 @@ async def ask(
         logger.exception("Error executing generated SQL")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
+    rendering = render_answer(columns, rows, client, settings.llm_model)
     rendering = render_answer(columns, rows)
 
     return QueryResult(sql=sql, rendering=rendering)
