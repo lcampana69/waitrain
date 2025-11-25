@@ -11,24 +11,15 @@
       table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
       th, td { border: 1px solid #ddd; padding: 0.5rem; }
       .grid { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; }
-      .debug { margin-top: 1rem; background: #0b1021; color: #e8ecf7; padding: 1rem; }
-      .debug h3 { margin-top: 0; }
-      .actions { display: flex; gap: 1rem; align-items: center; }
-      button { padding: 0.5rem 0.75rem; }
     </style>
   </head>
   <body>
     <h1>Consultas en lenguaje natural</h1>
     <p>Realiza preguntas sobre tu base de datos PostgreSQL. El servidor generará una consulta SQL basada en el esquema detectado.</p>
-    <div class="actions">
-      <div style="flex:1">
-        <label for="question">Pregunta</label>
-        <textarea id="question" placeholder="¿Cuántos usuarios están activos?"></textarea>
-      </div>
-      <div>
-        <button id="ask">Preguntar</button>
-        <button id="diagnostics">Diagnóstico</button>
-      </div>
+    <div>
+      <label for="question">Pregunta</label>
+      <textarea id="question" placeholder="¿Cuántos usuarios están activos?"></textarea>
+      <button id="ask">Preguntar</button>
     </div>
     <div class="grid">
       <div>
@@ -44,25 +35,13 @@
       <h2>Resultados</h2>
       <table id="results"></table>
     </div>
-    <div class="debug">
-      <h3>Ventana de debug</h3>
-      <pre id="debug">Esperando acciones...</pre>
-    </div>
 
     <script>
       const askBtn = document.getElementById('ask');
-      const diagBtn = document.getElementById('diagnostics');
       const questionField = document.getElementById('question');
       const sqlBlock = document.getElementById('sql');
       const summaryBlock = document.getElementById('summary');
       const resultsTable = document.getElementById('results');
-      const debugBlock = document.getElementById('debug');
-
-      function logDebug(message) {
-        const timestamp = new Date().toLocaleTimeString();
-        const next = `[${timestamp}] ${message}`;
-        debugBlock.textContent = `${next}\n${debugBlock.textContent}`;
-      }
 
       function renderTable(columns, rows) {
         if (!columns || columns.length === 0) {
@@ -74,66 +53,31 @@
         resultsTable.innerHTML = header + body;
       }
 
-      function parseResponse(response, text) {
-        try {
-          return JSON.parse(text);
-        } catch (err) {
-          throw new Error(`Respuesta no es JSON: ${text}`);
-        }
-      }
-
-      function describeError(detail) {
-        if (!detail) return 'Error desconocido';
-        if (typeof detail === 'string') return detail;
-        if (detail.message) return `${detail.message}${detail.context ? ` [${detail.context}]` : ''}`;
-        return JSON.stringify(detail);
-      }
-
       askBtn.addEventListener('click', async () => {
         const question = questionField.value.trim();
         if (!question) return;
         sqlBlock.textContent = 'Generando...';
         summaryBlock.textContent = 'Consultando...';
         resultsTable.innerHTML = '';
-        logDebug(`Preguntando: ${question}`);
         try {
           const response = await fetch('/question', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ texto: question })
           });
-          const text = await response.text();
-          const data = parseResponse(response, text);
+          const data = await response.json();
 
           if (!response.ok) {
-            throw new Error(describeError(data.detail));
+            throw new Error(data.detail || 'Error desconocido');
           }
 
           sqlBlock.textContent = data.sql;
           summaryBlock.textContent = data.rendering.summary;
           renderTable(data.rendering.columns, data.rendering.rows);
-          logDebug('Consulta respondida correctamente.');
         } catch (err) {
           sqlBlock.textContent = 'Error generando consulta';
           summaryBlock.textContent = err.message || err;
           resultsTable.innerHTML = '';
-          logDebug(`Error: ${err.message || err}`);
-        }
-      });
-
-      diagBtn.addEventListener('click', async () => {
-        logDebug('Ejecutando diagnóstico...');
-        try {
-          const response = await fetch('/diagnostics');
-          const text = await response.text();
-          const data = parseResponse(response, text);
-          if (!response.ok) {
-            throw new Error(describeError(data.detail));
-          }
-          const summary = data.checks.map(c => `${c.name}: ${c.status}${c.detail ? ` (${c.detail})` : ''}`).join(' | ');
-          logDebug(`Diagnóstico: ${summary}`);
-        } catch (err) {
-          logDebug(`Diagnóstico falló: ${err.message || err}`);
         }
       });
     </script>
