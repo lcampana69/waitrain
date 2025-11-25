@@ -22,8 +22,8 @@ def _serialize_schema(inspector) -> Dict[str, List[Dict[str, str]]]:
         columns = []
         for col in inspector.get_columns(table_name):
             columns.append({
-                "name": col["name"],
-                "type": str(col["type"]),
+                "column_name": col["name"],
+                "data_type": str(col["type"]),
                 "nullable": col.get("nullable", True),
             })
         schema[table_name] = columns

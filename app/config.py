@@ -54,7 +54,7 @@ class Settings:
                 "system",
                 "Responder preguntas sobre la base de datos usando el esquema proporcionado.",
             ),
-            llm_model=llm.get("model", "gpt-4o-mini"),
+            llm_model=llm.get("model", "gpt-5.1-mini"),
             llm_api_key=api_key,
         )
 

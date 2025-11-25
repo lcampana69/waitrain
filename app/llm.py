@@ -1,5 +1,4 @@
 """LLM helpers backed by OpenAI's ChatGPT models."""
-"""Simple, local stubs for LLM-driven behaviors."""
 from __future__ import annotations
 
 from typing import Dict, List, Tuple
@@ -22,9 +21,9 @@ def _format_schema(schema: Dict[str, List[Dict[str, str]]]) -> str:
     for table, columns in schema.items():
         sections.append(f"Tabla {table}:")
         for column in columns:
-            sections.append(
-                f"- {column.get('column_name')} ({column.get('data_type')})"
-            )
+            column_name = column.get("column_name") or column.get("name")
+            data_type = column.get("data_type") or column.get("type")
+            sections.append(f"- {column_name} ({data_type})")
     return "\n".join(sections)
 
 
@@ -91,32 +90,6 @@ def render_answer(
 
     return {
         "summary": response.choices[0].message.content.strip(),
-def build_sql_for_question(question: str, schema: Dict[str, List[Dict[str, str]]], system_prompt: str) -> str:
-    """Derive a SQL statement from a natural language question.
-
-    In a real deployment this function would call an LLM. Here we keep the
-    logic deterministic and transparent for local development.
-    """
-    # Extremely conservative demo: select all tables mentioned in the question
-    lowered = question.lower()
-    for table_name in schema:
-        if table_name.lower() in lowered:
-            return f"SELECT * FROM {table_name} LIMIT 50;"
-
-    # Fallback to list available tables if nothing matches.
-    tables = ", ".join(f"'{name}'" for name in schema.keys())
-    return (
-        "-- No direct table match, enumerating tables\n"
-        "SELECT table_name FROM information_schema.tables "
-        "WHERE table_schema = 'public' AND table_name IN ("
-        f"{tables}) LIMIT 50;"
-    )
-
-
-def render_answer(columns: List[str], rows: List[Tuple]) -> Dict[str, object]:
-    """Return a simple render-friendly payload."""
-    return {
-        "summary": f"{len(rows)} filas devueltas.",
         "columns": columns,
         "rows": [list(row) for row in rows],
     }

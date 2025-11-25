@@ -7,6 +7,6 @@ system = "Genera consultas SQL seguras usando el esquema proporcionado."
 
 [llm]
 # Modelo de OpenAI a utilizar
-model = "gpt-4o-mini"
+model = "gpt-5.1-mini"
 # Variable de entorno que debe contener la API key de OpenAI
 api_key_env = "OPENAI_API_KEY"
