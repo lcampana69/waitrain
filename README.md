@@ -7,6 +7,7 @@ Aplicación web mínima para consultas en lenguaje natural contra bases de datos
 - Extrae y cachea el esquema de la base de datos en `data/schema_cache.json` para reutilizarlo en sesiones posteriores (el archivo se comparte entre ejecuciones y además se memoiza en memoria por proceso).
 - Expone una interfaz web simple (`/`) para enviar preguntas en lenguaje natural.
 - Genera SQL con ChatGPT a partir de la pregunta y el esquema detectado, ejecuta la consulta y devuelve un renderizado resumido.
+- Incorpora un panel de debug en la UI y un endpoint de diagnóstico para detectar problemas de conexión o configuración.
 
 ## Requisitos previos
 - Python 3.11+
@@ -41,6 +42,9 @@ Aplicación web mínima para consultas en lenguaje natural contra bases de datos
 
 ### Problemas frecuentes
 - Error `ModuleNotFoundError: No module named 'openai'`: instala las dependencias con `pip install -r requirements.txt` antes de iniciar.
+- Al preguntar aparece un error de configuración JSON: revisa la "Ventana de debug" en la UI, que muestra la respuesta exacta del servidor.
+  - Usa el botón **Diagnóstico** para validar que el fichero TOML exista, que la conexión a la base de datos funcione y que el caché de esquema se genere.
+  - Corrige la ruta del TOML (`WAITRAIN_CONFIG`), el DSN o las credenciales según el mensaje devuelto.
 
 ### Flujo de trabajo
 1. La API carga configuración y valida DSN y credenciales de LLM al iniciar.
