@@ -39,6 +39,9 @@ Aplicación web mínima para consultas en lenguaje natural contra bases de datos
    ```
 2. Abre [http://localhost:8000](http://localhost:8000) y lanza preguntas en lenguaje natural.
 
+### Problemas frecuentes
+- Error `ModuleNotFoundError: No module named 'openai'`: instala las dependencias con `pip install -r requirements.txt` antes de iniciar.
+
 ### Flujo de trabajo
 1. La API carga configuración y valida DSN y credenciales de LLM al iniciar.
 2. Si no existe caché de esquema, introspecciona la base de datos y guarda el resultado en disco y memoria.
