@@ -1,14 +1,7 @@
 """LLM helpers backed by OpenAI's ChatGPT models."""
 from __future__ import annotations
 
-import importlib.util
 from typing import Dict, List, Tuple
-
-if importlib.util.find_spec("openai") is None:
-    raise RuntimeError(
-        "La librería 'openai' no está instalada. Ejecuta 'pip install -r requirements.txt' "
-        "antes de arrancar el servidor."
-    )
 
 from openai import OpenAI
 
