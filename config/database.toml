@@ -1,0 +1,12 @@
+[database]
+dsn = "postgresql+psycopg2://usuario:password@localhost:5432/base"
+schema_cache_path = "../data/schema_cache.json"
+
+[prompts]
+system = "Genera consultas SQL seguras usando el esquema proporcionado."
+
+[llm]
+# Modelo de OpenAI a utilizar
+model = "gpt-4o-mini"
+# Variable de entorno que debe contener la API key de OpenAI
+api_key_env = "OPENAI_API_KEY"
